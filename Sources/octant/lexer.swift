@@ -1,4 +1,4 @@
-enum Token {
+public enum Token {
     case select, from, `where`, groupBy, `as`, comma
     case `is`, not, null, semicolon
     case and, or, `true`, `false`, openParen, closeParen
@@ -11,7 +11,7 @@ enum Token {
     case comment(Comment)
 }
 
-enum BinaryOp: String {
+public enum BinaryOp: String {
     case plus = "+"
     case minus = "-"
     case times = "*"
@@ -33,17 +33,17 @@ enum BinaryOp: String {
     case neq = "!="
 }
 
-enum NumericLit {
+public enum NumericLit {
     case float(Float64)
     case int(Int64)
 }
 
-enum Comment {
+public enum Comment {
     case line(String)
     case block(String)
 }
 
-class Lexer {
+public class Lexer {
     let input: String
     var index: String.Index
 
@@ -55,12 +55,12 @@ class Lexer {
         return charAt(offset: 1)
     }
 
-    init(input: String) {
+    public init(input: String) {
         self.input = input
         self.index = input.startIndex
     }
 
-    func lex() -> [Token] {
+    public func lex() -> [Token] {
         var toks = [Token]()
 
         // use currIndex to make sure we are advancing through input
