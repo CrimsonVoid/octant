@@ -222,7 +222,31 @@ public class Lexer {
     }
 
     func processComment() -> Comment? {
-        return nil
+        // first two chars should be: --  //  /*
+        // and terminated by:         \n  \n  */
+        // TODO: support nested block comments
+
+        let term: String
+        switch input[index...].prefix(2) {
+        case "--", "//": term = "\n"
+        case "/*": term = "*/"
+        default: return nil
+        }
+        advanceIndex(by: 2)
+
+        let range = input[index...].range(of: term)
+        let lowerBound = (range?.lowerBound ?? input.endIndex)
+        let upperBound = (range?.upperBound ?? input.endIndex)
+
+        let tok: Comment?
+        switch term {
+        case "\n": tok = .line(String(input[index..<lowerBound]))
+        case "*/": tok = .block(String(input[index..<lowerBound]))
+        default: tok = nil // shouldn't get here, but just return nil for now
+        }
+        index = upperBound
+
+        return tok
     }
 
     func getIdent() -> Token {
