@@ -86,6 +86,7 @@ public class Lexer {
         // valid token with a matching prefix. advIndex controls if we should
         // advance the index by prefix.count; useful for variable length 
         // tokens.
+        //
         // make sure that longer tokens are at the top, and, since we can call
         // multiple functions before a valid Token is found, be sure that fn is
         // reentrant (does not modify index unless a valid Token is returned)
@@ -136,7 +137,7 @@ public class Lexer {
             }
         }
 
-        if let char = currentChar, char >= "0" && char <= "9" {
+        if let char = currentChar, case "0"..."9" = char {
             // already checked for numeric tokens with a leading +, -, or .
             return numericToken()
         }
@@ -298,7 +299,9 @@ public class Lexer {
         default: return .ident(String(token))
         }
     }
+}
 
+extension Lexer {
     // MARK: Utility Functions
 
     func charAt(index: String.Index) -> Character? {
