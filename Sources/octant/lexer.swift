@@ -187,9 +187,10 @@ public class Lexer {
     }
 
     func processInt() -> NumericLit? {
-        func isNum(_ c: Character) -> Bool { return c >= "0" && c <= "9" }
+        func isNum(_ c: Character) -> Bool { return c >= "0" && c <= "9" || c == "_"}
 
         // numbers should be \d+(\.\d+)? | (\d+)?\.\d+ with an optional leading sign
+        // and allow for _ to be used as a digit seperator
         let startIndex = index
 
         // skip sign
@@ -213,10 +214,10 @@ public class Lexer {
                 advanceIndex()
             }
 
-            return Float64(input[startIndex ..< index]).map { .float($0) }
+            return Float64(input[startIndex ..< index].filter { $0 != "_" }).map { .float($0) }
         } else {
             // we found some digits without a decimal point
-            return Int64(input[startIndex ..< index]).map { .int($0) }
+            return Int64(input[startIndex ..< index].filter { $0 != "_" }).map { .int($0) }
         }
     }
 
