@@ -271,7 +271,7 @@ public class Lexer {
         }
     }
 
-    /* Utility Functions */
+    // MARK: Utility Functions
 
     func charAt(index: String.Index) -> Character? {
         return index < input.endIndex ? input[index] : nil
@@ -309,11 +309,12 @@ public class Lexer {
 
     func reentrant<T>(_ fn: () -> T?) -> T? {
         let currIndex = index
-        if let tok = fn() {
-            return tok
+        let tok = fn()
+
+        if tok == nil {
+            index = currIndex
         }
 
-        index = currIndex
-        return nil
+        return tok
     }
 }
