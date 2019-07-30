@@ -278,20 +278,23 @@ public class Lexer {
         case "not": return .not
         case "null": return .null
         case "group":
-            // TODO - can we clean this up a bit?
+            let by = input[index...].prefix(4).lowercased()
 
-            guard let idx = input.index(index, offsetBy: 3, limitedBy: input.endIndex) else {
+            // this could be a .groupBy token, but must:
+
+            // a) be followed by the string " by"
+            if !by.hasPrefix(" by") {
                 return .ident(String(token))
             }
 
-            if let c = charAt(index: clampedIndex(idx, offsetBy: 1)), isNotTokenChar(c) {
+            // b) character after " by" should be a token character
+            let lastChar = by[by.index(before: by.endIndex)]
+            if by.count == 4 && !isNotTokenChar(lastChar) {
                 return .ident(String(token))
             }
 
-            switch input[index..<idx].lowercased() {
-            case " by": index = idx; return .groupBy
-            default: return .ident(String(token))
-            }
+            input.formIndex(&index, offsetBy: 3)
+            return .groupBy
         default: return .ident(String(token))
         }
     }
