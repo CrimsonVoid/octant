@@ -1,4 +1,4 @@
-public enum Token {
+public enum Token: Equatable {
     case select, from, `where`, groupBy, `as`, comma
     case `is`, not, null, semicolon
     case and, or, `true`, `false`, openParen, closeParen
@@ -9,6 +9,8 @@ public enum Token {
     case numLit(NumericLit)
     case ident(String)
     case comment(Comment)
+    
+    // TODO: having, over (window function)
 }
 
 public enum BinaryOp: String {
@@ -33,12 +35,12 @@ public enum BinaryOp: String {
     case neq = "!="
 }
 
-public enum NumericLit {
+public enum NumericLit: Equatable {
     case float(Float64)
     case int(Int64)
 }
 
-public enum Comment {
+public enum Comment: Equatable {
     case line(String)
     case block(String)
 }
@@ -190,7 +192,8 @@ public class Lexer {
     func processInt() -> NumericLit? {
         func isNum(_ c: Character) -> Bool { return c >= "0" && c <= "9" || c == "_"}
 
-        // numbers should be \d+(\.\d+)? | (\d+)?\.\d+ with an optional leading sign
+        //
+        // numbers should be re/\d+(.\d*)? | .\d+/ with an optional leading sign
         // and allow for _ to be used as a digit seperator
         let startIndex = index
 
@@ -216,10 +219,10 @@ public class Lexer {
             }
 
             return Float64(input[startIndex ..< index].filter { $0 != "_" }).map { .float($0) }
-        } else {
-            // we found some digits without a decimal point
-            return Int64(input[startIndex ..< index].filter { $0 != "_" }).map { .int($0) }
         }
+        
+        // we found some digits without a decimal point
+        return Int64(input[startIndex ..< index].filter { $0 != "_" }).map { .int($0) }
     }
 
     func processComment() -> Comment? {
