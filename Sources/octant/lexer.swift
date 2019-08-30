@@ -258,13 +258,13 @@ public class Lexer {
     }
 
     func getIdent() -> Token {
-        func isNotTokenChar(_ c: Character) -> Bool {
-            let isAlphanum = { c.isLetter || c.isNumber || c == "." }
+        func isTokenChar(_ c: Character) -> Bool {
+            let isAlphanum = { c.isLetter || c.isNumber || c == "." || c == "_" }
 
-            return !(c.isASCII && !c.isWhitespace && isAlphanum())
+            return c.isASCII && !c.isWhitespace && isAlphanum()
         }
 
-        let endIndex = buffer.firstIndex(where: isNotTokenChar) ?? input.endIndex
+        let endIndex = buffer.firstIndex(where: { !isTokenChar($0) }) ?? input.endIndex
         let token = buffer[..<endIndex]
         index = endIndex
 
@@ -297,7 +297,7 @@ public class Lexer {
 
             // b) character after " by" should be a token character
             let lastChar = by[by.index(before: by.endIndex)]
-            if by.count == 4 && !isNotTokenChar(lastChar) {
+            if by.count == 4 && isTokenChar(lastChar) {
                 return .ident(String(token))
             }
 

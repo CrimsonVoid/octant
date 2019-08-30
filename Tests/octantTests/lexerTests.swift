@@ -84,6 +84,7 @@ class lexerTests: XCTestCase {
             "hello": ("hello", .ident("hello")),
             "db.table": ("db.table", .ident("db.table")),
             "id0": ("id0", .ident("id0")),
+            "underscore ident": ("hello_world", .ident("hello_world"))
         ]
         runProcessTests(cases, tokenizer: { $0.getIdent() })
         
