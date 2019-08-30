@@ -9,7 +9,7 @@ public enum Token: Equatable {
     case numLit(NumericLit)
     case ident(String)
     case comment(Comment)
-    
+
     // TODO: having, over (window function)
 }
 
@@ -52,7 +52,7 @@ public class Lexer {
     var buffer: String.SubSequence {
         return input[index...]
     }
-    
+
     var currentChar: Character? {
         return charAt(index: index)
     }
@@ -158,7 +158,7 @@ public class Lexer {
         advanceIndex()
 
         // two single quotes ('') can be used as an escape sequence for a single quote.
-        // in order to avoid extra memcopies we get a list of substrings before concating
+        // in order to avoid extra memcopies we get a list of Substrings before joining
         // them
 
         var strIndexes: [Substring] = []
@@ -196,7 +196,6 @@ public class Lexer {
     func processInt() -> NumericLit? {
         func isNum(_ c: Character) -> Bool { return c >= "0" && c <= "9" || c == "_"}
 
-        //
         // numbers should be re/\d+(.\d*)? | .\d+/ with an optional leading sign
         // and allow for _ to be used as a digit seperator
         let startIndex = index
@@ -224,7 +223,7 @@ public class Lexer {
 
             return Float64(input[startIndex ..< index].filter { $0 != "_" }).map { .float($0) }
         }
-        
+
         // we found some digits without a decimal point
         return Int64(input[startIndex ..< index].filter { $0 != "_" }).map { .int($0) }
     }
@@ -234,20 +233,20 @@ public class Lexer {
         // and terminated by:         \n  \n  */
         // TODO: support nested block comments
 
-        let term: String
+        let terminal: String
         switch buffer.prefix(2) {
-        case "--", "//": term = "\n"
-        case "/*": term = "*/"
+        case "--", "//": terminal = "\n"
+        case "/*": terminal = "*/"
         default: return nil
         }
         advanceIndex(by: 2)
 
-        let range = buffer.range(of: term)
-        let lowerBound = (range?.lowerBound ?? input.endIndex)
-        let upperBound = (range?.upperBound ?? input.endIndex)
+        let range = buffer.range(of: terminal)
+        let lowerBound = range?.lowerBound ?? input.endIndex
+        let upperBound = range?.upperBound ?? input.endIndex
 
         let tok: Comment?
-        switch term {
+        switch terminal {
         case "\n": tok = .line(String(buffer[..<lowerBound]))
         case "*/": tok = .block(String(buffer[..<lowerBound]))
         default: tok = nil // shouldn't get here, but just return nil for now
@@ -258,6 +257,7 @@ public class Lexer {
     }
 
     func getIdent() -> Token {
+        // TODO: should . be included as a token char? convenient for 'db.table' but not so for others? (such as?)
         func isTokenChar(_ c: Character) -> Bool {
             let isAlphanum = { c.isLetter || c.isNumber || c == "." || c == "_" }
 

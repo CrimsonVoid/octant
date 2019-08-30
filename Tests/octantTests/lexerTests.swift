@@ -142,6 +142,21 @@ class lexerTests: XCTestCase {
         runProcessTests(cases, tokenizer: { $0.advanceToNextToken() })
     }
     
+    func testLex() {
+        let input = "SELECT *, avg(t.qty) FROM db.table AS t;"
+        let tokens: [Token] = [
+            .select, .binOp(.times), .comma,
+            .ident("avg"), .openParen, .ident("t.qty"), .closeParen,
+            .from, .ident("db.table"), .as, .ident("t"), .semicolon,
+        ]
+        
+        let lex = Lexer(input: input)
+        let got = lex.lex()
+        
+        XCTAssertEqual(got, tokens)
+        XCTAssertEqual(lex.index, lex.input.endIndex)
+    }
+    
     func runProcessTests<T: Equatable>(_ cases: [String: (input: String, expected: T?)], tokenizer: (Lexer) -> T?) {
         for (name, cs) in cases {
             let lex = Lexer(input: cs.input)
@@ -156,6 +171,7 @@ class lexerTests: XCTestCase {
         ("testProcessString", testProcessString),
         ("testProcessInt", testProcessInt),
         ("testProcessComment", testProcessComment),
-        ("advanceToNextToken", testAdvanceToNextToken),
+        ("testAdvanceToNextToken", testAdvanceToNextToken),
+        ("testLex", testLex),
     ]
 }
