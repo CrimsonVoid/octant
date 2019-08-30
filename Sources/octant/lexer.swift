@@ -49,6 +49,10 @@ public class Lexer {
     let input: String
     var index: String.Index
 
+    var buffer: String.SubSequence {
+        return input[index...]
+    }
+    
     var currentChar: Character? {
         return charAt(index: index)
     }
@@ -133,7 +137,7 @@ public class Lexer {
         ]
 
         for (prefix, advIndex, fn) in significantChars {
-            if input[index...].hasPrefix(prefix), let tok = fn() {
+            if buffer.hasPrefix(prefix), let tok = fn() {
                 if advIndex { advanceIndex(by: prefix.count) }
                 return tok
             }
@@ -231,21 +235,21 @@ public class Lexer {
         // TODO: support nested block comments
 
         let term: String
-        switch input[index...].prefix(2) {
+        switch buffer.prefix(2) {
         case "--", "//": term = "\n"
         case "/*": term = "*/"
         default: return nil
         }
         advanceIndex(by: 2)
 
-        let range = input[index...].range(of: term)
+        let range = buffer.range(of: term)
         let lowerBound = (range?.lowerBound ?? input.endIndex)
         let upperBound = (range?.upperBound ?? input.endIndex)
 
         let tok: Comment?
         switch term {
-        case "\n": tok = .line(String(input[index..<lowerBound]))
-        case "*/": tok = .block(String(input[index..<lowerBound]))
+        case "\n": tok = .line(String(buffer[..<lowerBound]))
+        case "*/": tok = .block(String(buffer[..<lowerBound]))
         default: tok = nil // shouldn't get here, but just return nil for now
         }
         index = upperBound
@@ -260,8 +264,8 @@ public class Lexer {
             return !(c.isASCII && !c.isWhitespace && isAlphanum())
         }
 
-        let endIndex = input[index...].firstIndex(where: isNotTokenChar) ?? input.endIndex
-        let token = input[index..<endIndex]
+        let endIndex = buffer.firstIndex(where: isNotTokenChar) ?? input.endIndex
+        let token = buffer[..<endIndex]
         index = endIndex
 
         switch token.lowercased() {
@@ -282,7 +286,7 @@ public class Lexer {
         case "not": return .not
         case "null": return .null
         case "group":
-            let by = input[index...].prefix(4).lowercased()
+            let by = buffer.prefix(4).lowercased()
 
             // this could be a .groupBy token, but must:
 
