@@ -261,7 +261,7 @@ public class Lexer {
         func isTokenChar(_ c: Character) -> Bool {
             let isAlphanum = { c.isLetter || c.isNumber || c == "." || c == "_" }
 
-            return c.isASCII && !c.isWhitespace && isAlphanum()
+            return c.isASCII && isAlphanum() && !c.isWhitespace
         }
 
         let endIndex = buffer.firstIndex(where: { !isTokenChar($0) }) ?? input.endIndex
@@ -295,7 +295,7 @@ public class Lexer {
                 return .ident(String(token))
             }
 
-            // b) character after " by" should be a token character
+            // b) character after " by" should not be a token character
             let lastChar = by[by.index(before: by.endIndex)]
             if by.count == 4 && isTokenChar(lastChar) {
                 return .ident(String(token))
