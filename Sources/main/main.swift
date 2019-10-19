@@ -1,4 +1,4 @@
-import octant
+import Octant
 
 let sql = [
     """
@@ -8,6 +8,11 @@ let sql = [
       AND c2 is not null
        OR c3 = false
       AND c4 = 'hello '' world'
+      AND c5 = CASE x
+                   WHEN 'dev' THEN 0
+                   WHEN 'design' THEN 1
+                   ELSE -1
+               END
     /* GROUP BY 1_000_000 */ ;
     """,
     "select 2."

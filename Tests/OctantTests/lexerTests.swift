@@ -1,5 +1,5 @@
 import XCTest
-@testable import octant
+@testable import Octant
 
 class lexerTests: XCTestCase {
     func testProcessString() {
